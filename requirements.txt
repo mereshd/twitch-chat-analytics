@@ -1,0 +1,5 @@
+selenium==4.16.0
+requests==2.31.0
+chardet==5.2.0
+bs4==0.0.1
+webdriver-manager==4.0.1
