@@ -6,10 +6,12 @@ from selenium.common.exceptions import NoSuchElementException, StaleElementRefer
 from datetime import datetime
 import time
 import json
+from selenium.webdriver.common.by import By
+
 
 def initialize_driver(options):
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(ChromeDriverManager().install())
+    service = Service()
+    driver = webdriver.Chrome(service=service, options=options)
     return driver
 
 def get_chat_elements(driver):
@@ -39,7 +41,6 @@ def process_chat_elements(chat_elements):
             # Adding timestamp
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            # Creating JSON object
             comment_data = {
                 "comment_id": message_id,
                 "timestamp": timestamp,
@@ -63,7 +64,6 @@ def main(url):
             for message in messages:
                 yield [message]
 
-            # Wait before the next iteration
             time.sleep(2)
 
     except NoSuchElementException:
@@ -86,15 +86,13 @@ def main(url):
                 time.sleep(5)
             except StaleElementReferenceException:
                 print(f"Stale element reference for message, re-locating...")
-                # Use 'pass' to continue with the next iteration of the outer 'while True' loop
                 pass
 
-        # Use 'return' to exit the function upon encountering an exception
         return
 
     except StaleElementReferenceException:
         print(f"Stale element reference for message, re-locating...")
-        # Use 'pass' to continue with the next iteration of the outer 'while True' loop
+
         pass
 
     except Exception as e:
