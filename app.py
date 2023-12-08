@@ -100,13 +100,46 @@ def main(url):
         return
 
 
+# function to color color the url_input font in white
+def url_text_input(label, value='', key=None, placeholder_color='white', text_color='white'):
+    '''Custom CSS to include white color for text input and placeholder'''
+    st.markdown(f"""
+    <style>
+    input[type="text"]::placeholder {{
+        color: {placeholder_color};
+    }}
+    input[type="text"], input[type="url"] {{
+        color: {text_color};
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+    return st.text_input(label, value=value, key=key)
+
+# passing function modify titles (color sidebar title to white and center the text, center main title)
+st.markdown(
+    """
+    <style>
+    .title-text {
+        color: white;
+        text-align: center; /* Center the text horizontally */
+    }
+    .custom-title {
+        text-align: center; /* Center the text horizontally */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 if __name__ == "__main__":
-    st.title("Twitch Chat Scraper")
-    stream_url = st.text_input("Enter Twitch Stream URL")
+    st.markdown('<h1 class="custom-title">Twitch Chat Scraper</h1>', unsafe_allow_html=True)
+    stream_url = url_text_input("Enter Twitch Stream URL")
+    image_url = "https://i.ibb.co/9hXGDgR/images.png"
+    st.sidebar.image(image_url, use_column_width=True)
     if st.button("Start Scraping"):
+        st.sidebar.markdown('<h1 class="title-text">Chat Messages</h1>', unsafe_allow_html=True)
         messages_generator = main(stream_url)
         for messages in messages_generator:
             for message in messages:
-                st.write(message)
+                st.sidebar.write(message)
