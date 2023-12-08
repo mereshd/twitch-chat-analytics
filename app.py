@@ -138,6 +138,7 @@ if __name__ == "__main__":
     image_url = "https://i.ibb.co/9hXGDgR/images.png"
     st.sidebar.image(image_url, use_column_width=True)
     if st.button("Start Scraping"):
+        st.balloons()
         st.sidebar.markdown('<h1 class="title-text">Chat Messages</h1>', unsafe_allow_html=True)
         messages_generator = main(stream_url)
         for messages in messages_generator:
