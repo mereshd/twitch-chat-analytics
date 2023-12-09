@@ -1,7 +1,5 @@
 import streamlit as st
 from textblob import TextBlob
-import matplotlib.pyplot as plt
-import pandas as pd
 import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -9,6 +7,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 from datetime import datetime
 from selenium.webdriver.common.by import By
+import altair as alt
+import pandas as pd
 
 def initialize_driver(options):
     service = Service()
@@ -67,6 +67,9 @@ def stream_and_analyze_messages(url):
     # Create empty lists to store messages and sentiment scores
     sentiment_scores = []
     
+    # Create a Streamlit container for the sentiment chart
+    chart_container = st.empty()
+    
     while True:
         chat_elements = get_chat_elements(driver)
         messages = process_chat_elements(chat_elements)
@@ -82,22 +85,29 @@ def stream_and_analyze_messages(url):
             st.sidebar.write(f"Message: {message_text}")
             st.sidebar.write(f"Sentiment Score: {sentiment_score}")
             
-        # Update the sentiment chart
-        update_sentiment_chart(sentiment_scores)
+            # Update and display the sentiment chart
+            update_sentiment_chart(sentiment_scores, chart_container)
         
         time.sleep(2)
 
-# Function to update the sentiment chart
-def update_sentiment_chart(sentiment_scores):
-    # Create a line chart to visualize sentiment scores over time
-    plt.figure(figsize=(10, 5))
-    plt.plot(sentiment_scores, marker='o', linestyle='-')
-    plt.xlabel("Message Index")
-    plt.ylabel("Sentiment Score")
-    plt.title("Sentiment Analysis Over Time")
+# Function to update and display the sentiment chart
+def update_sentiment_chart(sentiment_scores, chart_container):
+    # Create a DataFrame with sentiment scores
+    df = pd.DataFrame({"Message Index": range(1, len(sentiment_scores) + 1), "Sentiment Score": sentiment_scores})
+    
+    # Create a bar chart using Altair
+    chart = alt.Chart(df).mark_bar().encode(
+        x="Message Index",
+        y="Sentiment Score"
+    ).properties(
+        width=600,
+        height=300,
+        title="Sentiment Analysis Over Time"
+    )
     
     # Display the chart in the Streamlit app
-    st.pyplot(plt)
+    chart_container.empty()  # Clear previous chart
+    chart_container.altair_chart(chart, use_container_width=True)
 
 # Streamlit app
 if __name__ == "__main__":
@@ -112,4 +122,3 @@ if __name__ == "__main__":
     if st.button("Start Scraping"):
         # Start streaming and analyzing messages
         stream_and_analyze_messages(stream_url)
-
